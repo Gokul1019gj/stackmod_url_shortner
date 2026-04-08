@@ -11,40 +11,27 @@ import {
   getTopUrls,
   getDailyTrend,
   getBotSuspects,
-  UrlRow,
-  UrlStats,
-  TopUrlRow,
-  DailyTrendRow,
-  BotSuspectRow,
   getGlobalClicksByCountry,
 } from "../repositories/urlRepository";
 import { ensureUser } from "../repositories/userRepository";
+import {
+  ShortenInput,
+  ShortenResult,
+  ShortenError,
+  ResolveResult,
+  UrlStats,
+  UrlRow,
+  Pagination,
+  ListResult,
+  TopUrlRow,
+  DailyTrendRow,
+  BotSuspectRow,
+  DeleteResult,
+} from "../types";
 
 const ALIAS_REGEX = /^[a-zA-Z0-9-]{4,20}$/;
 
 // ── Shorten ──────────────────────────────────────────────────────────────────
-
-export interface ShortenInput {
-  original_url: unknown;
-  custom_alias: unknown;
-  expires_at: unknown;
-  userId: string | null;
-}
-
-export interface ShortenResult {
-  short_code: string;
-  original_url: string;
-  expires_at: string | null;
-  created_at: string;
-}
-
-export type ShortenError =
-  | { code: "MISSING_URL" }
-  | { code: "INVALID_URL" }
-  | { code: "INVALID_ALIAS" }
-  | { code: "ALIAS_TAKEN"; alias: string }
-  | { code: "INVALID_EXPIRES" }
-  | { code: "EXPIRES_IN_PAST" };
 
 export function shortenUrl(input: ShortenInput): ShortenResult | ShortenError {
   const { original_url, custom_alias, expires_at, userId } = input;
@@ -99,11 +86,6 @@ export function shortenUrl(input: ShortenInput): ShortenResult | ShortenError {
 
 // ── Resolve & Track ───────────────────────────────────────────────────────────
 
-export type ResolveResult =
-  | { status: "ok"; original_url: string }
-  | { status: "not_found" }
-  | { status: "expired" };
-
 export function resolveAndTrack(
   shortCode: string,
   ip: string | null,
@@ -147,18 +129,6 @@ export function getUrlStats(shortCode: string): UrlStats | null {
 
 // ── List ──────────────────────────────────────────────────────────────────────
 
-export interface Pagination {
-  page: number;
-  limit: number;
-  total: number;
-  total_pages: number;
-}
-
-export interface ListResult {
-  data: (Omit<UrlRow, "is_active"> & { is_active: boolean })[];
-  pagination: Pagination;
-}
-
 export function listUrls(
   userId: string,
   page: number,
@@ -182,8 +152,6 @@ export function listUrls(
 }
 
 // ── Analytics ─────────────────────────────────────────────────────────────────
-
-export { TopUrlRow, DailyTrendRow, BotSuspectRow };
 
 export function getTopUrlsService(from?: string, to?: string): TopUrlRow[] {
   return getTopUrls(from, to);
@@ -210,12 +178,6 @@ export function getGlobalClicksByCountryService(
 }
 
 // ── Delete ────────────────────────────────────────────────────────────────────
-
-export type DeleteResult =
-  | "ok"
-  | "not_found"
-  | "forbidden"
-  | "already_inactive";
 
 export function deleteUrl(
   shortCode: string,

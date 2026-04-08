@@ -1,25 +1,13 @@
 import { getDb } from "../db";
-
-export interface UrlRow {
-  short_code: string;
-  original_url: string;
-  user_id: string | null;
-  expires_at: string | null;
-  is_active: number;
-  created_at: string;
-}
-
-export interface CountryClickRow {
-  country: string;
-  clicks: number;
-}
-
-export interface UrlStats {
-  url: UrlRow;
-  total_clicks: number;
-  unique_visitors: number;
-  clicks_by_country: CountryClickRow[];
-}
+import {
+  UrlRow,
+  CountryClickRow,
+  UrlStats,
+  UrlWithStats,
+  TopUrlRow,
+  DailyTrendRow,
+  BotSuspectRow,
+} from "../types";
 
 export function findByShortCode(shortCode: string): UrlRow | undefined {
   return getDb()
@@ -48,10 +36,6 @@ export function insertUrl(
       `INSERT INTO urls (short_code, original_url, user_id, expires_at) VALUES (?, ?, ?, ?)`,
     )
     .run(shortCode, originalUrl, userId, expiresAt);
-}
-
-export interface UrlWithStats extends UrlRow {
-  clicks: number;
 }
 
 export function listByUser(
@@ -102,14 +86,6 @@ export function recordClick(
 
 // ── Q2: Top 10 most-clicked URLs in last 7 days ───────────────────────────────
 
-export interface TopUrlRow {
-  short_code: string;
-  original_url: string;
-  user_id: string | null;
-  total_clicks: number;
-  unique_visitors: number;
-}
-
 export function getTopUrls(from?: string, to?: string): TopUrlRow[] {
   // Defaults: last 7 days
   const fromClause = from ?? `datetime('now', '-7 days')`;
@@ -150,13 +126,6 @@ export function getTopUrls(from?: string, to?: string): TopUrlRow[] {
 }
 
 // ── Q3: Daily click trend for a user over 30 days ─────────────────────────────
-
-export interface DailyTrendRow {
-  date: string;
-  total_clicks: number;
-  prev_clicks: number | null;
-  change_pct: number | null;
-}
 
 export function getDailyTrend(
   userId: string,
@@ -204,13 +173,6 @@ export function getDailyTrend(
 }
 
 // ── Q4: Bot detection ─────────────────────────────────────────────────────────
-
-export interface BotSuspectRow {
-  short_code: string;
-  hour: string;
-  click_count: number;
-  unique_ips: number;
-}
 
 export function getBotSuspects(): BotSuspectRow[] {
   return getDb()
