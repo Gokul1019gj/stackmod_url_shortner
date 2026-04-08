@@ -86,3 +86,10 @@ npm test
 | `DATABASE_URL` | `file:./data.db`        | Prisma database path    |
 | `DB_PATH`      | `data.db`               | SQLite repository path  |
 | `CORS_ORIGINS` | `http://localhost:5173` | Allowed CORS origins    |
+
+## ⚙️ Environment Variables (`frontend/.env`)
+
+| Variable       | Default                 | Description          |
+| -------------- | ----------------------- | -------------------- |
+| `VITE_API_URL` | `http://localhost:8081` | Backend API base URL |
+
