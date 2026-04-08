@@ -1,0 +1,47 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model users {
+  id            String   @id
+  name          String?
+  email         String?  @unique
+  password_hash String?
+  created_at    DateTime @default(now())
+  urls          urls[]
+}
+
+model urls {
+  short_code   String    @id
+  original_url String
+  user_id      String?
+  expires_at   DateTime?
+  is_active    Boolean   @default(true)
+  created_at   DateTime  @default(now())
+
+  user         users?    @relation(fields: [user_id], references: [id])
+  click_events click_events[]
+
+  @@index([user_id])
+  @@index([is_active])
+}
+
+model click_events {
+  id         Int      @id @default(autoincrement())
+  short_code String
+  ip_address String?
+  country    String?
+  user_agent String?
+  clicked_at DateTime @default(now())
+
+  url        urls     @relation(fields: [short_code], references: [short_code], onDelete: Cascade)
+
+  @@index([short_code])
+  @@index([clicked_at])
+  @@index([short_code, clicked_at])
+  @@index([ip_address])
+}
